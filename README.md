@@ -7,7 +7,7 @@ It's assumed you have minikube setup, and all the resource requirements listed a
 Janky scripts:
 - `chart-install.sh`: install chart
 - `chart-delete.sh`: delete chart
-- `concord-console.sh`: jump to concord console in the browser
+- `concord-console.sh`: jump to concord console in the browser. Use the `auBy4eDWrKWsyhiDp3AQiw` API token to log into the console
 - `connect-to-pg.sh`: connect to pg using psql
 - `test.sh`: submit a test non-dind process
 - `test-dind.sh`: submit a test dind process
