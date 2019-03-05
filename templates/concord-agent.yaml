@@ -37,7 +37,7 @@ spec:
       containers:
         - name: dind
           image: "library/docker:stable-dind" # https://hub.docker.com/_/docker
-          args: ["-H tcp://127.0.0.1:6666"] # the newer versions of dind have different syntax
+          args: ["-H tcp://0.0.0.0:6666"] # the newer versions of dind have different syntax
           #args: ["-H tcp://127.0.0.1:6666", "--bip=10.11.13.1/24"] # the newer versions of dind have different syntax
           volumeMounts:
             - name: "process-tmp"
@@ -72,7 +72,7 @@ spec:
             - name: CONCORD_DOCKER_LOCAL_MODE
               value: "false"
             - name: DOCKER_HOST
-              value: "tcp://dind:6666"
+              value: "tcp://127.0.0.1:6666"
             - name: CONCORD_CFG_FILE
               value: "/opt/concord/conf/agent.conf"
             - name: CONCORD_MAVEN_CFG
