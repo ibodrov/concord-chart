@@ -1,0 +1,101 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: concord-cfg
+  namespace: "default"
+data:
+  agent.conf: |
+    {{ (.Files.Glob "files/agent.conf").AsConfig | indent 2 }}
+
+  mvn.json: |
+    {
+      "repositories": [
+        {
+          "id": "central",
+          "url": "https://repo1.maven.org/maven2/"
+        }
+      ]
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: concord-agent
+  namespace: "default"
+spec:
+  selector:
+    matchLabels:
+      app: concord-agent
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: concord-agent
+    spec:
+      hostNetwork: false
+      containers:
+        - name: dind
+          image: "library/docker:stable-dind" # https://hub.docker.com/_/docker
+          args: ["-H tcp://127.0.0.1:6666"] # the newer versions of dind have different syntax
+          #args: ["-H tcp://127.0.0.1:6666", "--bip=10.11.13.1/24"] # the newer versions of dind have different syntax
+          volumeMounts:
+            - name: "process-tmp"
+              mountPath: "/tmp"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "0.5"
+            limits:
+              memory: "256Mi"
+              cpu: "1"
+          securityContext:
+            privileged: true
+
+        - name: agent
+          image: "ibodrov/concord-agent:latest"
+          volumeMounts:
+            - name: "cfg"
+              mountPath: "/opt/concord/conf"
+            - name: "process-tmp"
+              mountPath: "/tmp"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "0.5"
+            limits:
+              memory: "256Mi"
+              cpu: "1"
+          env:
+            - name: CONCORD_TMP_DIR
+              value: "/tmp/concord"
+            - name: CONCORD_DOCKER_LOCAL_MODE
+              value: "false"
+            - name: DOCKER_HOST
+              value: "tcp://dind:6666"
+            - name: CONCORD_CFG_FILE
+              value: "/opt/concord/conf/agent.conf"
+            - name: CONCORD_MAVEN_CFG
+              value: "/opt/concord/conf/mvn.json"
+            # TODO is there a way to avoid setting those vars?
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MY_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: USER_AGENT
+              value: "k8s-agent $(MY_POD_NAMESPACE)/$(MY_POD_NAME) @ $(MY_POD_IP)"
+
+      volumes:
+        - name: cfg
+          configMap:
+            name: concord-cfg
+        - name: process-tmp
+          emptyDir: {}

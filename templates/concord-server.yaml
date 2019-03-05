@@ -1,0 +1,53 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: server-conf
+data:
+{{ (.Files.Glob "files/server.conf").AsConfig | indent 2 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: concord-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: concord-server
+  template:
+    metadata:
+      labels:
+        app: concord-server
+    spec:
+      containers:
+        - name: concord-server
+          image: ibodrov/concord-server:latest
+          imagePullPolicy: "IfNotPresent"
+          volumeMounts:
+          - name: "cfg"
+            mountPath: "/opt/concord/conf/server.conf"
+            subPath: server.conf
+          ports:
+          - containerPort: 8001
+          env:
+          - name: CONCORD_CFG_FILE
+            value: /opt/concord/conf/server.conf
+      volumes:
+        - name: cfg
+          configMap:
+            name: server-conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: concord-server
+  labels:
+    app: concord-server
+spec:
+  type: NodePort
+  ports:
+  - port: 8001
+    protocol: TCP
+  selector:
+    app: concord-server
