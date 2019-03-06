@@ -9,12 +9,10 @@ Janky scripts:
 - `chart-delete.sh`: delete chart
 - `concord-console.sh`: jump to concord console in the browser. Use the `auBy4eDWrKWsyhiDp3AQiw` API token to log into the console
 - `connect-to-pg.sh`: connect to pg using psql
-- `test.sh`: submit a test non-dind process
-- `test-dind.sh`: submit a test dind process
+- `test.sh`: runs and end-to-end test for concord
 
 
 TODO:
-- sort out issues with running a docker step in dind
 - use templating properly
 - provide a set of local development values
 - provide a set of production values
