@@ -1,3 +1,5 @@
 flows:
   default:
-  - log: "hi"
+  - docker: alpine
+    cmd: echo "WOOHOO"
+  - log: "COMPLETED"
