@@ -13,8 +13,9 @@ Janky scripts:
 
 
 TODO:
-- use templating properly
 - provide a set of local development values
 - provide a set of production values
 - integrate with stable/postgresql helm chart
 - integrate with AWS RDS for Postgres
+- integrate LoadBalancer vs NodePort
+- integrate DNS

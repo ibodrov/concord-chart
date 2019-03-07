@@ -5,11 +5,14 @@
 namespace: default
 
 # clearly we will use secrets here
-postgres:
+postgresql:
   database: postgres
   port: 5432
   user: postgres
   password: q1
+  image:
+    repository: library/postgres
+    tag: 10.4
 
 server:
   port: 8001
