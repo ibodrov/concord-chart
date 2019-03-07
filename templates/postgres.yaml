@@ -6,9 +6,9 @@ metadata:
   labels:
     app: postgres
 data:
-  POSTGRES_DB: "postgres"
-  POSTGRES_USER: "postgres"
-  POSTGRES_PASSWORD: "q1"
+  POSTGRES_DB: {{ .Values.postgres.database }}
+  POSTGRES_USER: {{ .Values.postgres.user }}
+  POSTGRES_PASSWORD: {{ .Values.postgres.password }}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -59,7 +59,7 @@ spec:
           image: library/postgres:10.4
           imagePullPolicy: "IfNotPresent"
           ports:
-            - containerPort: 5432
+            - containerPort: {{ .Values.postgres.port }}
           envFrom:
             - configMapRef:
                 name: postgres-config
@@ -80,7 +80,7 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - port: 5432
+  - port: {{ .Values.postgres.port }}
     protocol: TCP
   selector:
     app: postgres

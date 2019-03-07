@@ -4,6 +4,13 @@
 
 namespace: default
 
+# clearly we will use secrets here
+postgres:
+  database: postgres
+  port: 5432
+  user: postgres
+  password: q1
+
 server:
   port: 8001
   image:
