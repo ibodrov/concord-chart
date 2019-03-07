@@ -22,14 +22,14 @@ spec:
     spec:
       containers:
         - name: concord-server
-          image: ibodrov/concord-server:latest
+          image: {{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}
           imagePullPolicy: "IfNotPresent"
           volumeMounts:
           - name: "cfg"
             mountPath: "/opt/concord/conf/server.conf"
             subPath: server.conf
           ports:
-          - containerPort: 8001
+          - containerPort: {{ .Values.server.port }}
           env:
           - name: CONCORD_CFG_FILE
             value: /opt/concord/conf/server.conf
@@ -47,7 +47,7 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - port: 8001
+  - port: {{ .Values.server.port }}
     protocol: TCP
   selector:
     app: concord-server

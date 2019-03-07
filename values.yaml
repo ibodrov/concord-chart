@@ -4,6 +4,12 @@
 
 namespace: default
 
+server:
+  port: 8001
+  image:
+    repository: ibodrov/concord-server
+    tag: latest
+
 console:
   port: 8080
   image:
