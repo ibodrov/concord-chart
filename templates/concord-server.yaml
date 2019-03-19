@@ -45,7 +45,7 @@ metadata:
   labels:
     app: concord-server
 spec:
-  type: NodePort
+  type: LoadBalancer
   ports:
   - port: {{ .Values.server.port }}
     protocol: TCP

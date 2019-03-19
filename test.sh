@@ -1,40 +1,47 @@
 #!/bin/sh
 
-# - Deletes all the concord related pods
-# - deploys concord with a helm chart
-# - starts a process and validates it has executed correctly
-
-echo "Waiting for all Concord pods to be deleted"
-./chart-delete.sh
-while [ "$(kubectl get pod -o name)" != "" ]
-do
-  printf '.'
-  sleep 2
-done
+# Could possibly use an ingress controller, but for now minikube just works
+# differently than a real cluster.
+if [ "$(kubectl config view -o jsonpath='{.clusters[].name}')" == "minikube" ]
+then
+  echo "Using Minikube!"
+  echo
+  HOST_PORT=`minikube service concord-server --url | sed 's@^http:\/\/@@'`
+else
+  echo "Using EKS"
+  echo
+  # We need to wait until the loadbalancer is up
+  echo "Waiting for the load balancer"
+  load_balancer=""
+  while [ -z "$load_balancer" ]
+  do
+    load_balancer=$(kubectl get svc concord-server --template="{{range .status.loadBalancer.ingress}}{{.hostname}}{{end}}")
+    printf '.'
+    sleep 2
+  done
+  HOST_PORT=`kubectl get service concord-server --no-headers |  awk {'print $4 ":" $5'} | awk 'BEGIN { FS = ":" } ; { print $1 ":" $2 }'`
+fi
 
 echo
 echo
 
-./chart-install.sh
-
-HOST_PORT=`minikube service concord-server --url | sed 's@^http:\/\/@@'`
-HOST=`echo $HOST_PORT | awk -F':' '{print $1}'`
-PORT=`echo $HOST_PORT | awk -F':' '{print $2}'`
+#echo "${HOST_PORT}"
+#HOST=`echo $HOST_PORT | awk -F':' '{print $1}'`
+#PORT=`echo $HOST_PORT | awk -F':' '{print $2}'`
 #echo "Concord server: ${HOST}:${PORT}"
 
 # wait for the server to start
 echo "Waiting for the Concord server to start"
-until $(curl --output /dev/null --silent --head --fail "http://${HOST}:${PORT}/api/v1/server/ping"); do
+until $(curl --output /dev/null --silent --head --fail "http://${HOST_PORT}/api/v1/server/ping"); do
   printf '.'
   sleep 2
 done
 
 echo
-echo
 echo "Submitting process..."
 
 # Submit process
-RESULT=`curl --silent -H 'Authorization: auBy4eDWrKWsyhiDp3AQiw' -F concord.yml=@test.yml http://${HOST}:${PORT}/api/v1/process`
+RESULT=`curl --silent -H 'Authorization: auBy4eDWrKWsyhiDp3AQiw' -F concord.yml=@test.yml http://${HOST_PORT}/api/v1/process`
 #echo ${RESULT}
 ID=`echo ${RESULT} | jq -r .instanceId`
 echo ${ID}
@@ -43,7 +50,7 @@ echo ${ID}
 
 echo
 echo "Waiting for the Concord process to finish"
-while [ "$(curl --silent -H 'Authorization: auBy4eDWrKWsyhiDp3AQiw' http://${HOST}:${PORT}/api/v1/process/${ID} | jq -r .status)" != "FINISHED" ]
+while [ "$(curl --silent -H 'Authorization: auBy4eDWrKWsyhiDp3AQiw' http://${HOST_PORT}/api/v1/process/${ID} | jq -r .status)" != "FINISHED" ]
 do
   printf '.'
   sleep 2
@@ -78,7 +85,7 @@ echo
 echo "Looking for completion message in process log..."
 echo
 # Inspect logs from executed process
-RESULT=`curl --silent -H 'Authorization: auBy4eDWrKWsyhiDp3AQiw' http://${HOST}:${PORT}/api/v1/process/${ID}/log`
+RESULT=`curl --silent -H 'Authorization: auBy4eDWrKWsyhiDp3AQiw' http://${HOST_PORT}/api/v1/process/${ID}/log`
 #echo ${LOG}
 if echo ${RESULT} | grep -q 'COMPLETED'; then
     echo "SUCCESS!"
