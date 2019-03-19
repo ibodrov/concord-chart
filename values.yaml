@@ -4,8 +4,17 @@
 
 namespace: default
 
+ldap:
+  enabled: false
+
 # clearly we will use secrets here
 postgresql:
+  rds:
+    enabled: false
+  chart:
+    enabled: false
+  docker:
+    enabled: true
   database: postgres
   port: 5432
   user: postgres

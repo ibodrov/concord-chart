@@ -1,3 +1,4 @@
+{{ if .Values.postgresql.docker.enabled }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -6,9 +7,9 @@ metadata:
   labels:
     app: postgresql
 data:
-  postgresql_DB: {{ .Values.postgresql.database }}
-  postgresql_USER: {{ .Values.postgresql.user }}
-  postgresql_PASSWORD: {{ .Values.postgresql.password }}
+  POSTGRES_DB: {{ .Values.postgresql.database }}
+  POSTGRES_USER: {{ .Values.postgresql.user }}
+  POSTGRES_PASSWORD: {{ .Values.postgresql.password }}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -84,3 +85,4 @@ spec:
     protocol: TCP
   selector:
     app: postgresql
+{{ end }}
