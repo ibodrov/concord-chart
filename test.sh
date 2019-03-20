@@ -32,6 +32,7 @@ echo
 
 # wait for the server to start
 echo "Waiting for the Concord server to start"
+echo "http://${HOST_PORT}/api/v1/server/ping"
 until $(curl --output /dev/null --silent --head --fail "http://${HOST_PORT}/api/v1/server/ping"); do
   printf '.'
   sleep 2

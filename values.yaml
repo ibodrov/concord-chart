@@ -40,6 +40,8 @@ agent:
   image:
     repository: ibodrov/concord-agent
     tag: latest
+  k8sNamespace: default
+  workers: 1
   resources:
     requests:
       memory: 128Mi

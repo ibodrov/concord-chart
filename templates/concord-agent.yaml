@@ -6,7 +6,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 data:
   agent.conf: |
-{{ (.Files.Glob "files/agent.conf").AsConfig | indent 2 }}
+{{ (tpl (.Files.Glob "files/agent.conf").AsConfig . ) | indent 2 }}
 
   mvn.json: |
 {{ (.Files.Glob "files/mvn.json").AsConfig | indent 2 }}
