@@ -6,10 +6,10 @@ metadata:
   namespace: {{ .Values.namespace }}
 data:
   nginx.conf: |
-{{ (.Files.Glob "files/nginx.conf").AsConfig | indent 2 }}
+{{ (.Files.Glob "files/console/nginx.conf").AsConfig | indent 2 }}
 
   app.conf: |
-{{ (.Files.Glob "files/app.conf").AsConfig | indent 2 }}
+{{ (.Files.Glob "files/console/app.conf").AsConfig | indent 2 }}
 ---
 apiVersion: apps/v1
 kind: Deployment
