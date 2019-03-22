@@ -13,12 +13,10 @@ fi
 if [ "$(kubectl config view -o jsonpath='{.clusters[].name}')" == "minikube" ]
 then
   echo "Using Minikube!"
-  HOST_PORT=`minikube service concord-console --url | sed 's@^http:\/\/@@'`
   URL=`minikube service concord-console --url`
   $OPEN_CMD "${URL}/#/login?useApiKey=true"
 else
   echo "Using EKS"
   HOST_PORT=`kubectl get service concord-console --no-headers |  awk {'print $4 ":" $5'} | awk 'BEGIN { FS = ":" } ; { print $1 ":" $2 }'`
-  URL=`minikube service concord-console --url`
   $OPEN_CMD "http://${HOST_PORT}/#/login?useApiKey=true"
 fi
