@@ -15,8 +15,9 @@ postgresql:
     enabled: false
   docker:
     enabled: true
-  database: postgres
+  server: postgresql
   port: 5432
+  database: postgres
   user: postgres
   password: q1
   image:
