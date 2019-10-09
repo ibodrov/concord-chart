@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # http://${HOST}:${PORT}/#/login?useApiKey=true
 # apiKey: auBy4eDWrKWsyhiDp3AQiw

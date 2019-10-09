@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Could possibly use an ingress controller, but for now minikube just works
 # differently than a real cluster.

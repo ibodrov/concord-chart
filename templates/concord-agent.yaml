@@ -30,6 +30,7 @@ spec:
       containers:
         - name: dind
           image: {{ .Values.dind.image.repository }}:{{ .Values.dind.image.tag }}
+          command: {{ .Values.dind.image.command }}
           args: {{ .Values.dind.image.args }}
           volumeMounts:
             - name: "process-tmp"

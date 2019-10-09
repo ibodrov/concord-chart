@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # http://${HOST}:${PORT}/#/login?useApiKey=true
 # apiKey: auBy4eDWrKWsyhiDp3AQiw
@@ -10,7 +10,7 @@ fi
 
 # Could possibly use an ingress controller, but for now minikube just works
 # differently than a real cluster.
-if [ "$(kubectl config view -o jsonpath='{.clusters[].name}')" == "minikube" ]
+if [ "$(kubectl config view -o jsonpath='{.clusters[].name}')" == "minikube" ];
 then
   echo "Using Minikube!"
   URL=`minikube service concord-console --url`

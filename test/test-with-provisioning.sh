@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # - Deletes all the concord related pods
 # - deploys concord with a helm chart

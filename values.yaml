@@ -55,6 +55,7 @@ dind:
   image:
     repository: library/docker
     tag: stable-dind
+    command: ["dockerd"]
     args: |
       [ "-H tcp://0.0.0.0:6666" ]
 
