@@ -1,0 +1,129 @@
+# Default values for concord.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+namespace: default
+
+ldap:
+  enabled: true
+  url: ldaps://your.secure.ldap.server:636 # SSL/TLS check is hardcoded, so use FQDN for proper SNA. For unsafe use "ldap://...:3268".
+  searchBase: DC=your,DC=domain,DC=name
+  # OpenLDAP example:
+  #principalSearchFilter: "(cn={0})"
+  #userSearchFilter: "(cn=*{0}*)"
+  #usernameProperty: "cn"
+  ##returningAttributes = ["*", "memberOf"]
+  # AD:
+  principalSearchFilter: (&(sAMAccountName={0})(objectCategory=person))
+  userSearchFilter: (&(|(sAMAccountName={0}*)(displayName={0}*))(objectCategory=person))
+  usernameProperty: sAMAccountName
+  mailProperty: mail
+  groupSearchFilter: (objectClass=group)
+  groupNameProperty: NBU\\GG_IPAM_ADMINS # When in double quotes backslash is a preffix to escape sequence! Two backslash here is java requirement.
+  groupDisplayNameProperty: description
+  systemUsername: CN=admin,OU=Your department,DC=your,DC=domain,DC=name
+  systemPassword: "supersecretpassword"
+
+# clearly we will use secrets here
+postgresql:
+  rds:
+    enabled: false
+  chart:
+    enabled: false
+  docker:
+    enabled: false
+  server: pg1-patroni
+  port: 5432
+  database: "postgres"
+  user: "postgres"
+  password: "supersecretpassword"
+  image:
+    repository: library/postgres
+    tag: 12.2
+
+server:
+  port: 8001
+  image:
+    repository: walmartlabs/concord-server
+    tag: 1.48.1
+
+console:
+  port: 8080
+  image:
+    repository: walmartlabs/concord-console
+    tag: latest
+
+agent:
+  hostNetwork: false
+  image:
+    repository: walmartlabs/concord-agent
+    tag: 1.48.1
+  k8sNamespace: default
+  workers: 1
+  resources:
+    requests:
+      cpu: 0.5
+      memory: 1G # 512Mi
+    limits:
+      cpu: 2
+      memory: 2G
+
+dind:
+  image:
+    repository: library/docker
+    tag: stable-dind
+    command: ["dockerd"]
+    resources:
+      requests:
+        cpu: 1
+        memory: 2G
+      limits:
+        cpu: 2
+        memory: 3G
+    args: |
+      [ "-H tcp://0.0.0.0:6666" ]
+
+# replicaCount: 1 # Where used? What can/should be scaled, and what can't/shouldn't?
+
+image:
+  repository: nginx
+  tag: stable
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+ingress:
+  enabled: true
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+
+  host: concord.your.domain.name
+  path: /
+  #hosts:
+  #  - host: concord.your.domain.name
+  #    paths: []
+
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
