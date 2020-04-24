@@ -4,7 +4,7 @@ apiVersion: v1
 metadata:
   name: server-conf
 data:
-{{ (.Files.Glob "files/server.conf").AsConfig | indent 2 }}
+{{ (tpl (.Files.Glob "files/server/server.conf").AsConfig . ) | indent 2 }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -22,14 +22,14 @@ spec:
     spec:
       containers:
         - name: concord-server
-          image: ibodrov/concord-server:latest
+          image: {{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}
           imagePullPolicy: "IfNotPresent"
           volumeMounts:
           - name: "cfg"
             mountPath: "/opt/concord/conf/server.conf"
             subPath: server.conf
           ports:
-          - containerPort: 8001
+          - containerPort: {{ .Values.server.port }}
           env:
           - name: CONCORD_CFG_FILE
             value: /opt/concord/conf/server.conf
@@ -42,12 +42,18 @@ apiVersion: v1
 kind: Service
 metadata:
   name: concord-server
+{{- if .Values.server.annotations }}
+{{- with .Values.server.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- end }}
   labels:
     app: concord-server
 spec:
-  type: NodePort
+  type: {{ .Values.server.type | default "ClusterIP" }}
   ports:
-  - port: 8001
+  - port: {{ .Values.server.port }}
     protocol: TCP
   selector:
     app: concord-server

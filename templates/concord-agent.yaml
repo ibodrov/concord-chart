@@ -3,26 +3,19 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: concord-cfg
-  namespace: "default"
+  namespace: {{ .Values.namespace }}
 data:
   agent.conf: |
-    {{ (.Files.Glob "files/agent.conf").AsConfig | indent 2 }}
+{{ (tpl (.Files.Glob "files/agent/agent.conf").AsConfig . ) | indent 2 }}
 
   mvn.json: |
-    {
-      "repositories": [
-        {
-          "id": "central",
-          "url": "https://repo1.maven.org/maven2/"
-        }
-      ]
-    }
+{{ (tpl (.Files.Glob "files/agent/mvn.json").AsConfig . ) | indent 2 }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: concord-agent
-  namespace: "default"
+  namespace: {{ .Values.namespace }}
 spec:
   selector:
     matchLabels:
@@ -33,27 +26,27 @@ spec:
       labels:
         app: concord-agent
     spec:
-      hostNetwork: false
+      hostNetwork: {{ .Values.agent.hostNetwork }}
       containers:
         - name: dind
-          image: "library/docker:stable-dind" # https://hub.docker.com/_/docker
-          args: ["-H tcp://127.0.0.1:6666"] # the newer versions of dind have different syntax
-          #args: ["-H tcp://127.0.0.1:6666", "--bip=10.11.13.1/24"] # the newer versions of dind have different syntax
+          image: {{ .Values.dind.image.repository }}:{{ .Values.dind.image.tag }}
+          command: {{ .Values.dind.image.command }}
+          args: {{ .Values.dind.image.args }}
           volumeMounts:
             - name: "process-tmp"
               mountPath: "/tmp"
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "0.5"
+              memory: {{ .Values.agent.resources.requests.memory }}
+              cpu: {{ .Values.agent.resources.requests.cpu }}
             limits:
-              memory: "256Mi"
-              cpu: "1"
+              memory: {{ .Values.agent.resources.limits.memory }}
+              cpu: {{ .Values.agent.resources.limits.cpu }}
           securityContext:
             privileged: true
 
         - name: agent
-          image: "ibodrov/concord-agent:latest"
+          image: {{ .Values.agent.image.repository }}:{{ .Values.agent.image.tag }}
           volumeMounts:
             - name: "cfg"
               mountPath: "/opt/concord/conf"
@@ -61,18 +54,18 @@ spec:
               mountPath: "/tmp"
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "0.5"
+              memory: {{ .Values.agent.resources.requests.memory }}
+              cpu: {{ .Values.agent.resources.requests.cpu }}
             limits:
-              memory: "256Mi"
-              cpu: "1"
+              memory: {{ .Values.agent.resources.limits.memory }}
+              cpu: {{ .Values.agent.resources.limits.cpu }}
           env:
             - name: CONCORD_TMP_DIR
               value: "/tmp/concord"
             - name: CONCORD_DOCKER_LOCAL_MODE
               value: "false"
             - name: DOCKER_HOST
-              value: "tcp://dind:6666"
+              value: "tcp://127.0.0.1:6666"
             - name: CONCORD_CFG_FILE
               value: "/opt/concord/conf/agent.conf"
             - name: CONCORD_MAVEN_CFG

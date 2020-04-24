@@ -1,22 +1,23 @@
+{{ if .Values.postgresql.docker.enabled }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: postgres-config
+  name: postgresql-config
   labels:
-    app: postgres
+    app: postgresql
 data:
-  POSTGRES_DB: "postgres"
-  POSTGRES_USER: "postgres"
-  POSTGRES_PASSWORD: "q1"
+  POSTGRES_DB: {{ .Values.postgresql.database }}
+  POSTGRES_USER: {{ .Values.postgresql.user }}
+  POSTGRES_PASSWORD: {{ .Values.postgresql.password }}
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: postgres-pv-volume
+  name: postgresql-pv-volume
   labels:
     type: local
-    app: postgres
+    app: postgresql
 spec:
   storageClassName: manual
   capacity:
@@ -29,9 +30,9 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: postgres-pv-claim
+  name: postgresql-pv-claim
   labels:
-    app: postgres
+    app: postgresql
 spec:
   storageClassName: manual
   accessModes:
@@ -43,44 +44,45 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: postgres
+  name: postgresql
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: postgres
+      app: postgresql
   template:
     metadata:
       labels:
-        app: postgres
+        app: postgresql
     spec:
       containers:
-        - name: postgres
-          image: library/postgres:10.4
+        - name: postgresql
+          image: {{ .Values.postgresql.image.repository }}:{{ .Values.postgresql.image.tag }}
           imagePullPolicy: "IfNotPresent"
           ports:
-            - containerPort: 5432
+            - containerPort: {{ .Values.postgresql.port }}
           envFrom:
             - configMapRef:
-                name: postgres-config
+                name: postgresql-config
           volumeMounts:
-            - mountPath: /var/lib/postgresql/data
+            - mountPath: /var/lib/postgresqlql/data
               name: postgredb
       volumes:
         - name: postgredb
           persistentVolumeClaim:
-            claimName: postgres-pv-claim
+            claimName: postgresql-pv-claim
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres
+  name: postgresql
   labels:
-    app: postgres
+    app: postgresql
 spec:
   type: NodePort
   ports:
-  - port: 5432
+  - port: {{ .Values.postgresql.port }}
     protocol: TCP
   selector:
-    app: postgres
+    app: postgresql
+{{ end }}
