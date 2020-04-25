@@ -19,7 +19,7 @@ ldap:
   usernameProperty: sAMAccountName
   mailProperty: mail
   groupSearchFilter: (objectClass=group)
-  groupNameProperty: NBU\\GG_IPAM_ADMINS # When in double quotes backslash is a preffix to escape sequence! Two backslash here is java requirement.
+  groupNameProperty: DOMAIN\\AD_GROUP_NAME # When in double quotes backslash is a preffix to escape sequence! Two backslash here is java requirement.
   groupDisplayNameProperty: description
   systemUsername: CN=admin,OU=Your department,DC=your,DC=domain,DC=name
   systemPassword: "supersecretpassword"
