@@ -46,6 +46,9 @@ server:
   image:
     repository: walmartlabs/concord-server
     tag: 1.48.1
+  git:
+    ssl:
+      verify: true
 
 console:
   port: 8080

@@ -33,6 +33,10 @@ spec:
           env:
           - name: CONCORD_CFG_FILE
             value: /opt/concord/conf/server.conf
+          {{- if not .Values.server.git.ssl.verify }}
+          - name: GIT_SSL_NO_VERIFY
+            value: "true" # use quotes!
+          {{- end }}
       volumes:
         - name: cfg
           configMap:

@@ -1,4 +1,0 @@
-flows:
-  default:
-  - docker: alpine
-    cmd: echo "WOOHOO!"
