@@ -37,14 +37,13 @@ spec:
               mountPath: "/tmp"
           resources:
             requests:
-              memory: {{ .Values.agent.resources.requests.memory }}
-              cpu: {{ .Values.agent.resources.requests.cpu }}
+              memory: {{ .Values.dind.resources.requests.memory }}
+              cpu: {{ .Values.dind.resources.requests.cpu }}
             limits:
-              memory: {{ .Values.agent.resources.limits.memory }}
-              cpu: {{ .Values.agent.resources.limits.cpu }}
+              memory: {{ .Values.dind.resources.limits.memory }}
+              cpu: {{ .Values.dind.resources.limits.cpu }}
           securityContext:
             privileged: true
-
         - name: agent
           image: {{ .Values.agent.image.repository }}:{{ .Values.agent.image.tag }}
           volumeMounts:
@@ -85,7 +84,6 @@ spec:
                   fieldPath: status.podIP
             - name: USER_AGENT
               value: "k8s-agent $(MY_POD_NAMESPACE)/$(MY_POD_NAME) @ $(MY_POD_IP)"
-
       volumes:
         - name: cfg
           configMap:

@@ -76,15 +76,15 @@ dind:
     repository: library/docker
     tag: stable-dind
     command: ["dockerd"]
-    resources:
-      requests:
-        cpu: 1
-        memory: 2G
-      limits:
-        cpu: 2
-        memory: 3G
-    args: |
+    args: |-
       [ "-H tcp://0.0.0.0:6666" ]
+  resources:
+    requests:
+      cpu: 1
+      memory: 2G
+    limits:
+      cpu: 2
+      memory: 3G
 
 # replicaCount: 1 # Where used? What can/should be scaled, and what can't/shouldn't?
 
